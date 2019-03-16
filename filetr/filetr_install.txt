@@ -1,0 +1,39 @@
+###### filetr文件传输服务安装步骤 #######
+
+# 若未安装xinetd，安装xinetd
+yum install xinetd
+
+cd /etc/
+vi services
+
+#增加以下行，3800为监听端口，可修改为其他
+#此端口需向客户端服务器开放
+filetr 3800/tcp
+
+cd /etc/xinetd.d
+
+#创建以下文件
+vi filetr
+
+#写入以下内容
+service filetr
+{
+    disable = no
+    socket_type             = stream
+    protocol                = tcp
+    wait                    = no
+    user                    = yourname
+    server                  = /home/yourname/bin/filetr
+    server_args             = -l -d /home/yourname/data/filetr
+    per_source              = 10
+    cps                     = 100 2
+    flags                   = IPv4
+}
+
+# user为执行服务的用户名
+# server为可执行文件filetr的完整路径，user需有执行权限
+# server_args为文件上传下载存放目录，user需有读写权限
+
+# 重启xinetd
+systemctl restart xinetd
+systemctl -l status xinetd
